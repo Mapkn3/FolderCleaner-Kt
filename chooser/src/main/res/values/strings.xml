@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Chooser</string>
+    <string name="items_not_found">Items not found</string>
+    <string name="select_current_folder_button_text">select</string>
+    <string name="item_icon">Item icon</string>
+</resources>

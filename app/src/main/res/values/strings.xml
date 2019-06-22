@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Folder Cleaner</string>
+    <string name="select_folder_button_text">Select folder</string>
+    <string name="clear_folder_button_text">Clear folders</string>
+</resources>
