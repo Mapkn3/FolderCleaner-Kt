@@ -22,6 +22,16 @@ class ChooserViewModel : ViewModel() {
         fileSystemModelLiveData.value = fileSystemModel
     }
 
+    fun setPathType() {
+        fileSystemModel.type = FileSystemModel.TYPE.PATH
+        fileSystemModelLiveData.value = fileSystemModel
+    }
+
+    fun setNameType() {
+        fileSystemModel.type = FileSystemModel.TYPE.NAME
+        fileSystemModelLiveData.value = fileSystemModel
+    }
+
     fun selectNextItem(item: String) {
         fileSystemModel.selectNextItem(item)
         fileSystemModelLiveData.value = fileSystemModel
@@ -33,5 +43,5 @@ class ChooserViewModel : ViewModel() {
         return result
     }
 
-    fun getPathString() = fileSystemModel.getPathString()
+    fun getChoice() = fileSystemModel.getChoice()
 }

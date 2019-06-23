@@ -34,7 +34,7 @@ class ChooserFragment : ListFragment() {
         val view = inflater.inflate(R.layout.chooser_fragment, container, false)
         pathTextView = view.findViewById(R.id.pathTextView)
         selectCurrentItemButton = view.findViewById(R.id.selectCurrentItemButton)
-        selectCurrentItemButton.setOnClickListener { v -> (activity as ChooserActivity).onResult(getPathString()) }
+        selectCurrentItemButton.setOnClickListener { v -> (activity as ChooserActivity).onResult(getChoice()) }
         return view
     }
 
@@ -58,10 +58,14 @@ class ChooserFragment : ListFragment() {
             }
         })
 
-        var mode: FileSystemModel.MODE = (activity as ChooserActivity).mode
-        when (mode) {
+        when ((activity as ChooserActivity).mode) {
             FileSystemModel.MODE.FOLDER -> setFolderMode()
             FileSystemModel.MODE.FILE -> setAllMode()
+        }
+
+        when ((activity as ChooserActivity).type) {
+            FileSystemModel.TYPE.PATH -> setPathType()
+            FileSystemModel.TYPE.NAME -> setNameType()
         }
     }
 
@@ -69,15 +73,19 @@ class ChooserFragment : ListFragment() {
 
     fun setFolderMode() = chooserViewModel.setFolderMode()
 
+    fun setPathType() = chooserViewModel.setPathType()
+
+    fun setNameType() = chooserViewModel.setNameType()
+
     fun selectNext(item: String) = chooserViewModel.selectNextItem(item)
 
     fun selectPrev() = chooserViewModel.selectPrevItem()
 
-    fun getPathString() = chooserViewModel.getPathString()
+    fun getChoice() = chooserViewModel.getChoice()
 
     override fun onListItemClick(l: ListView?, v: View?, position: Int, id: Long) {
         super.onListItemClick(l, v, position, id)
         val item: Map<String, Any> = l?.getItemAtPosition(position) as Map<String, Any>
-        selectNext(item.get(ITEM_KEY_NAME) as String)
+        selectNext(item[ITEM_KEY_NAME] as String)
     }
 }

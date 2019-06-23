@@ -15,6 +15,7 @@ import my.mapkn3.chooser.ui.main.ChooserFragment
 class ChooserActivity : AppCompatActivity() {
     companion object {
         val CHOOSE = "choose"
+        val GET = "get"
         val RESULT_STRING = "RESULT_STRING"
     }
 
@@ -22,6 +23,7 @@ class ChooserActivity : AppCompatActivity() {
     val REQUEST_CODE = 1337
 
     lateinit var mode: FileSystemModel.MODE
+    lateinit var type: FileSystemModel.TYPE
 
     private lateinit var chooserFragment: ChooserFragment
 
@@ -58,6 +60,7 @@ class ChooserActivity : AppCompatActivity() {
         }
 
         mode = intent.getSerializableExtra(CHOOSE) as FileSystemModel.MODE
+        type = intent.getSerializableExtra(GET) as FileSystemModel.TYPE
     }
 
     fun onResult(result: String) {

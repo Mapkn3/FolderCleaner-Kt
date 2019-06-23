@@ -102,12 +102,14 @@ class MainActivity : AppCompatActivity() {
     fun startChooseFolder(view: View) {
         val chooserActivity = Intent(this, ChooserActivity::class.java)
         chooserActivity.putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FOLDER)
+        chooserActivity.putExtra(ChooserActivity.GET, FileSystemModel.TYPE.PATH)
         startActivityForResult(chooserActivity, SELECT_FOLDER)
     }
 
     fun startChooseIgnore(view: View) {
         val chooserActivity = Intent(this, ChooserActivity::class.java)
         chooserActivity.putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FILE)
+        chooserActivity.putExtra(ChooserActivity.GET, FileSystemModel.TYPE.NAME)
         startActivityForResult(chooserActivity, SELECT_IGNORE)
     }
 

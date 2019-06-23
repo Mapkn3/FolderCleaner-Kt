@@ -10,16 +10,24 @@ class FileSystemModel {
     }
 
     enum class MODE {FOLDER, FILE}
+    enum class TYPE {PATH, NAME}
 
     var fileFilter: FILTER
+    var type: TYPE
     private var path: ArrayList<String>
     private var currentItem: File
 
     init {
         fileFilter = FILTER.ONLY_DIRECTORIES
+        type = TYPE.PATH
         path = ArrayList()
         currentItem = File(ROOT)
         selectNextItem(ROOT)
+    }
+
+    fun getChoice(): String = when (type) {
+        TYPE.PATH -> currentItem.absolutePath
+        TYPE.NAME -> currentItem.name
     }
 
     fun getPathString() = getPathStringFromList(path)
