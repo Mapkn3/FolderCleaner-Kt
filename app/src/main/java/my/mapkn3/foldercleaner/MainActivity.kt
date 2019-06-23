@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                         toastShort("You can't select root folder!")
                     } else {
                         if (foldersFragment.folders.contains(path)) {
-                            toastShort("Folder '$path' already selected")
+                            toastShort("Folder '$path' is already selected")
                         } else {
                             foldersFragment.folders.add(path)
                             foldersFragment.adapter.notifyDataSetChanged()
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     val path = data.getStringExtra(ChooserActivity.RESULT_STRING)
                     if (ignoreFragment.ignore.contains(path)) {
-                        toastShort("Ignore '$path' already selected")
+                        toastShort("Ignore '$path' is already selected")
                     } else {
                         ignoreFragment.ignore.add(path)
                         ignoreFragment.adapter.notifyDataSetChanged()
@@ -116,24 +116,38 @@ class MainActivity : AppCompatActivity() {
     fun startClearFolders(view: View) {
         if (foldersFragment.folders.isNotEmpty()) {
             foldersFragment.folders.forEach { path ->
-                val files: Array<File>? = File(path).listFiles { dir, name -> !ignoreFragment.ignore.contains(name) }
-                if (files == null || files.isEmpty()) {
-                    toastShort("Folder '$path' is empty")
+                val item = File(path)
+                if (ignoreFragment.ignore.contains(item.name)) {
+                    toastShort("Folder '$path' is in ignore list")
                 } else {
-                    files.forEach { file ->
-                        val filePath = file.absolutePath
-                        val isDelete = file.delete()
-                        if (!isDelete) {
-                            toastLong("File '$filePath' is not deleted")
+                    val files: Array<File>? = item.listFiles()
+                    if (files == null || files.isEmpty()) {
+                        toastShort("Folder '$path' is empty")
+                    } else {
+                        files.forEach {
+                            if (!deepRemoveItem(it)) {
+                                toastLong("File '${it.absolutePath}' is not deleted")
+                            }
                         }
+                        toastLong("Folder '$path' is cleared")
                     }
-                    toastLong("Folder '$path' is cleared")
                 }
             }
             toastLong("Complete!")
         } else {
             toastLong("Nothing is selected...")
         }
+    }
+
+    private fun deepRemoveItem(item: File): Boolean {
+        var result = false
+        if (!ignoreFragment.ignore.contains(item.name)) {
+            if (item.isDirectory) {
+                item.listFiles().forEach { deepRemoveItem(it) }
+            }
+            result = item.delete()
+        }
+        return result
     }
 
     fun saveData(key: String, data: ArrayList<String>) {
