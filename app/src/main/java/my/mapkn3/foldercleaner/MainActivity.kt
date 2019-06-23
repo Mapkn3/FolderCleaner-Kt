@@ -9,27 +9,28 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.android.synthetic.main.activity_main.*
 import my.mapkn3.chooser.ChooserActivity
 import my.mapkn3.chooser.model.FileSystemModel
+import my.mapkn3.foldercleaner.fragment.FoldersFragment
+import my.mapkn3.foldercleaner.fragment.IgnoreFragment
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
     companion object {
-        private const val FOLDERS_KEY = "folders"
+        val FOLDERS_KEY = "folders"
+        val IGNORE_KEY = "ignore"
         val SELECT_FOLDER = 1
+        val SELECT_IGNORE = 2
         var IGNORE_FILES = listOf(".nomedia")
     }
 
-    private lateinit var folders: ArrayList<String>
-    private lateinit var adapter: ArrayAdapter<String>
-
+    private lateinit var foldersFragment: FoldersFragment
+    private lateinit var ignoreFragment: IgnoreFragment
 
     val PERMISSIONS = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
     val REQUEST_CODE = 1337
@@ -59,24 +60,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         requestForPermission()
 
-        loadData()
-
-        val folderListView = findViewById<ListView>(R.id.folders)
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, folders)
-        folderListView.adapter = adapter
-
-        folderListView.setOnItemLongClickListener { parent, view, position, id ->
-            val selectedItem = (view as TextView).text.toString()
-            val removedItem = folders.removeAt(position)
-            adapter.notifyDataSetChanged()
-            toastShort("Folder '$removedItem' unselected")
-            removedItem == selectedItem
+        if (savedInstanceState == null) {
+            foldersFragment = FoldersFragment.newInstance()
+            ignoreFragment = IgnoreFragment.newInstance()
         }
-    }
 
-    override fun onStop() {
-        saveData()
-        super.onStop()
+        viewPager2.adapter = ViewPagerFragmentStateAdapter(listOf(ignoreFragment, foldersFragment), supportFragmentManager, lifecycle)
+        viewPager2.currentItem = 1
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -88,12 +78,22 @@ class MainActivity : AppCompatActivity() {
                     if (path == Environment.getExternalStorageDirectory().absolutePath) {
                         toastShort("You can't select root folder!")
                     } else {
-                        if (folders.contains(path)) {
+                        if (foldersFragment.folders.contains(path)) {
                             toastShort("Folder '$path' already selected")
                         } else {
-                            folders.add(path)
-                            adapter.notifyDataSetChanged()
+                            foldersFragment.folders.add(path)
+                            foldersFragment.adapter.notifyDataSetChanged()
                         }
+                    }
+                }
+            SELECT_IGNORE ->
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val path = data.getStringExtra(ChooserActivity.RESULT_STRING)
+                    if (ignoreFragment.ignore.contains(path)) {
+                        toastShort("Ignore '$path' already selected")
+                    } else {
+                        ignoreFragment.ignore.add(path)
+                        ignoreFragment.adapter.notifyDataSetChanged()
                     }
                 }
         }
@@ -105,10 +105,16 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(chooserActivity, SELECT_FOLDER)
     }
 
+    fun startChooseIgnore(view: View) {
+        val chooserActivity = Intent(this, ChooserActivity::class.java)
+        chooserActivity.putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FILE)
+        startActivityForResult(chooserActivity, SELECT_IGNORE)
+    }
+
     fun startClearFolders(view: View) {
-        if (folders.isNotEmpty()) {
-            folders.forEach { path ->
-                val files: Array<File>? = File(path).listFiles { dir, name -> !IGNORE_FILES.contains(name) }
+        if (foldersFragment.folders.isNotEmpty()) {
+            foldersFragment.folders.forEach { path ->
+                val files: Array<File>? = File(path).listFiles { dir, name -> !ignoreFragment.ignore.contains(name) }
                 if (files == null || files.isEmpty()) {
                     toastShort("Folder '$path' is empty")
                 } else {
@@ -128,22 +134,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveData() {
+    fun saveData(key: String, data: ArrayList<String>) {
         getPreferences(Context.MODE_PRIVATE).edit()
-            .putStringSet(FOLDERS_KEY, HashSet(folders))
+            .putStringSet(key, HashSet(data))
             .apply()
     }
 
-    private fun loadData() {
-        val savedFolders = getPreferences(Context.MODE_PRIVATE).getStringSet(FOLDERS_KEY, emptySet())
-        folders = ArrayList(savedFolders)
+    fun loadData(key: String): ArrayList<String> {
+        val savedFolders = getPreferences(Context.MODE_PRIVATE).getStringSet(key, emptySet())
+        return ArrayList(savedFolders)
     }
 
-    private fun toastShort(message: String) {
+    fun toastShort(message: String) {
         toast(message, Toast.LENGTH_SHORT)
     }
 
-    private fun toastLong(message: String) {
+    fun toastLong(message: String) {
         toast(message, Toast.LENGTH_LONG)
     }
 
