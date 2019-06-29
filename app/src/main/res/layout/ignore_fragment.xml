@@ -14,10 +14,10 @@
         android:layout_weight="10"
         android:footerDividersEnabled="true"
         android:headerDividersEnabled="true"
-        tools:listitem="@android:layout/simple_list_item_1" />
+        tools:listitem="@layout/text_list_item" />
 
     <LinearLayout
-        android:id="@+id/controlPanel"
+        android:id="@+id/ignoreControlPanel"
         style="@style/Widget.AppCompat.ButtonBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,7 +29,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="startChooseIgnore"
             android:text="@string/select_ignore_button_text" />
 
     </LinearLayout>

@@ -4,13 +4,13 @@ import android.os.Environment
 import java.io.File
 
 class FileSystemModel {
-    enum class FILTER {ALL, ONLY_DIRECTORIES}
+    enum class FILTER { ALL, ONLY_DIRECTORIES }
     companion object {
         val ROOT: String = Environment.getExternalStorageDirectory().absolutePath
     }
 
-    enum class MODE {FOLDER, FILE}
-    enum class TYPE {PATH, NAME}
+    enum class MODE { FOLDER, FILE }
+    enum class TYPE { PATH, NAME }
 
     var fileFilter: FILTER
     var type: TYPE
@@ -52,13 +52,11 @@ class FileSystemModel {
     }
 
     fun getItemsForCurrentItem(): List<File> {
-        val listFiles = currentItem.listFiles(
-            when(fileFilter) {
-                FILTER.ALL -> File::exists
-                FILTER.ONLY_DIRECTORIES -> File::isDirectory
-            }
-        )
-        val items = listFiles?.toList() ?: emptyList<File>()
+        val listFiles = when (fileFilter) {
+            FILTER.ALL -> currentItem.listFiles(File::exists)
+            FILTER.ONLY_DIRECTORIES -> currentItem.listFiles(File::isDirectory)
+        }
+        val items = listFiles.toList()
         return items.sortedWith(Comparator { o1, o2 ->
             var result: Int
             if ((o1.isDirectory && o2.isDirectory) || (o1.isFile && o2.isFile)) {
@@ -67,7 +65,7 @@ class FileSystemModel {
                     result = o1.name.compareTo(o2.name)
                 }
             } else {
-                result = if (o1.equals(o2)) 0 else if (o1.isDirectory) -1 else 1
+                result = if (o1 == o2) 0 else if (o1.isDirectory) -1 else 1
             }
             result
         })

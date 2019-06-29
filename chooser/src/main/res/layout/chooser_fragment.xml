@@ -8,7 +8,7 @@
     tools:context=".ui.main.ChooserFragment">
 
     <LinearLayout
-        android:id="@+id/controlPanel"
+        android:id="@+id/chooserControlPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -35,7 +35,7 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/list_item">
+        tools:listitem="@layout/chooser_list_item">
     </ListView>
 
     <TextView

@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import my.mapkn3.chooser.model.FileSystemModel
 import my.mapkn3.chooser.ui.main.ChooserFragment
 
-class ChooserActivity : AppCompatActivity() {
+class ChooserActivity : AppCompatActivity(), ChooserFragment.ChooserFragmentListener {
     companion object {
         val CHOOSE = "choose"
         val GET = "get"
@@ -21,9 +21,6 @@ class ChooserActivity : AppCompatActivity() {
 
     val PERMISSIONS = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
     val REQUEST_CODE = 1337
-
-    lateinit var mode: FileSystemModel.MODE
-    lateinit var type: FileSystemModel.TYPE
 
     private lateinit var chooserFragment: ChooserFragment
 
@@ -53,18 +50,18 @@ class ChooserActivity : AppCompatActivity() {
 
         setContentView(R.layout.chooser_activity)
         if (savedInstanceState == null) {
-            chooserFragment = ChooserFragment.newInstance()
+            chooserFragment = ChooserFragment.newInstance(
+                intent.getSerializableExtra(CHOOSE) as FileSystemModel.MODE,
+                intent.getSerializableExtra(GET) as FileSystemModel.TYPE
+            )
             supportFragmentManager.beginTransaction()
                 .replace(R.id.container, chooserFragment)
                 .commitNow()
         }
-
-        mode = intent.getSerializableExtra(CHOOSE) as FileSystemModel.MODE
-        type = intent.getSerializableExtra(GET) as FileSystemModel.TYPE
     }
 
-    fun onResult(result: String) {
-        var intent = Intent()
+    override fun onSelectClick(result: String) {
+        val intent = Intent()
         intent.putExtra(RESULT_STRING, result)
         setResult(Activity.RESULT_OK, intent)
         finish()

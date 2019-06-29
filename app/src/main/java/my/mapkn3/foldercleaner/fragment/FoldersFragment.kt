@@ -1,14 +1,15 @@
 package my.mapkn3.foldercleaner.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ListView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import my.mapkn3.foldercleaner.MainActivity
+import kotlinx.android.synthetic.main.folders_fragment.view.*
 import my.mapkn3.foldercleaner.R
 
 class FoldersFragment : Fragment() {
@@ -17,38 +18,60 @@ class FoldersFragment : Fragment() {
         fun newInstance() = FoldersFragment()
     }
 
-    lateinit var folders: ArrayList<String>
+    private lateinit var folderFragmentListener: FolderFragmentListener
+    lateinit var foldersList: ArrayList<String>
     lateinit var adapter: ArrayAdapter<String>
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        folders = (activity as MainActivity).loadData(MainActivity.FOLDERS_KEY)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is FolderFragmentListener) {
+            folderFragmentListener = context
+        } else {
+            throw ClassCastException("$context must implement FolderFragmentListener")
+        }
+
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        foldersList = folderFragmentListener.loadData(FolderFragmentListener.FOLDERS_KEY)
 
         val fragment = inflater.inflate(R.layout.folders_fragment, container, false)
-        val folderListView = fragment.findViewById<ListView>(R.id.folders)
-        adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, folders)
-        folderListView.adapter = adapter
+        context?.let {
+            adapter = ArrayAdapter(it, R.layout.text_list_item, foldersList)
+            fragment.folders.adapter = adapter
 
-        folderListView.setOnItemLongClickListener { parent, view, position, id ->
-            val selectedItem = (view as TextView).text.toString()
-            val removedItem = folders.removeAt(position)
-            adapter.notifyDataSetChanged()
-            (activity as MainActivity).toastShort("Folder '$removedItem' unselected")
-            removedItem == selectedItem
+            fragment.folders.onItemLongClickListener =
+                AdapterView.OnItemLongClickListener { parent, view, position, id ->
+                    val selectedItem = (view as TextView).text.toString()
+                    val removedItem = foldersList.removeAt(position)
+                    adapter.notifyDataSetChanged()
+                    folderFragmentListener.notify("Folder '$removedItem' unselected")
+                    removedItem == selectedItem
+                }
         }
+
+        fragment.selectFolderButton.setOnClickListener { folderFragmentListener.onChooseFolderClick() }
+        fragment.clearFolderButton.setOnClickListener { folderFragmentListener.onClearFolderClick() }
 
         return fragment
     }
 
     override fun onDestroyView() {
-        (activity as MainActivity).saveData(MainActivity.FOLDERS_KEY, folders)
+        folderFragmentListener.saveData(FolderFragmentListener.FOLDERS_KEY, foldersList)
         super.onDestroyView()
     }
 
-    fun startChooseFolder(view: View) {
-        (activity as MainActivity).startChooseFolder(view)
-    }
+    interface FolderFragmentListener : SaveLoadData<String, ArrayList<String>>, NotifyUser {
+        companion object {
+            const val FOLDERS_KEY = "foldersList"
+        }
 
-    fun startClearFolders(view: View) {
-        (activity as MainActivity).startClearFolders(view)
+        fun onChooseFolderClick()
+
+        fun onClearFolderClick()
     }
 }

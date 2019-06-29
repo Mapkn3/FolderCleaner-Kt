@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".fragment.FoldersFragment">
+
     <LinearLayout
-        android:id="@+id/controlPanel"
+        android:id="@+id/foldersControlPanel"
         style="@style/Widget.AppCompat.ButtonBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,7 +20,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="startChooseFolder"
             android:text="@string/select_folder_button_text" />
 
         <Button
@@ -28,7 +28,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="startClearFolders"
             android:text="@string/clear_folder_button_text" />
     </LinearLayout>
 
@@ -38,5 +37,5 @@
         android:layout_height="wrap_content"
         android:footerDividersEnabled="true"
         android:headerDividersEnabled="true"
-        tools:listitem="@android:layout/simple_list_item_1" />
+        tools:listitem="@layout/text_list_item" />
 </LinearLayout>
