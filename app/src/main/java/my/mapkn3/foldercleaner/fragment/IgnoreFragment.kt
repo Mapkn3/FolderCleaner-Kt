@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.ignore_fragment.view.*
+import kotlinx.android.synthetic.main.text_list_item.view.*
 import my.mapkn3.foldercleaner.R
 
 class IgnoreFragment : Fragment() {
@@ -31,23 +31,26 @@ class IgnoreFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         ignoreList = ignoreFragmentListener.loadData(IgnoreFragmentListener.IGNORE_KEY)
 
         val fragment = inflater.inflate(R.layout.ignore_fragment, container, false)
 
-        context?.let {
-            fragment.ignore.adapter = ArrayAdapter(it, R.layout.text_list_item, ignoreList)
+        adapter = ArrayAdapter(context, R.layout.text_list_item, ignoreList)
+        fragment.ignore.adapter = adapter
 
-            fragment.ignore.onItemLongClickListener =
-                AdapterView.OnItemLongClickListener { parent, view, position, id ->
-                    val selectedItem = (view as TextView).text.toString()
-                    val removedItem = ignoreList.removeAt(position)
-                    adapter.notifyDataSetChanged()
-                    ignoreFragmentListener.notify("Ignore '$removedItem' unselected")
-                    removedItem == selectedItem
-                }
-        }
+        fragment.ignore.onItemLongClickListener =
+            AdapterView.OnItemLongClickListener { parent, view, position, id ->
+                val selectedItem = view.textItem.text.toString()
+                val removedItem = ignoreList.removeAt(position)
+                adapter.notifyDataSetChanged()
+                ignoreFragmentListener.notify("Ignore '$removedItem' unselected")
+                removedItem == selectedItem
+            }
 
         fragment.selectIgnoreButton.setOnClickListener { ignoreFragmentListener.onChooseIgnoreClick() }
 
@@ -57,6 +60,11 @@ class IgnoreFragment : Fragment() {
     override fun onDestroyView() {
         ignoreFragmentListener.saveData(IgnoreFragmentListener.IGNORE_KEY, ignoreList)
         super.onDestroyView()
+    }
+
+    fun addIgnore(item: String) {
+        ignoreList.add(item)
+        adapter.notifyDataSetChanged()
     }
 
     interface IgnoreFragmentListener : SaveLoadData<String, ArrayList<String>>, NotifyUser {

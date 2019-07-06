@@ -52,12 +52,11 @@ class FileSystemModel {
     }
 
     fun getItemsForCurrentItem(): List<File> {
-        val listFiles = when (fileFilter) {
+        val items = when (fileFilter) {
             FILTER.ALL -> currentItem.listFiles(File::exists)
             FILTER.ONLY_DIRECTORIES -> currentItem.listFiles(File::isDirectory)
         }
-        val items = listFiles.toList()
-        return items.sortedWith(Comparator { o1, o2 ->
+        return items.toList().sortedWith(Comparator { o1, o2 ->
             var result: Int
             if ((o1.isDirectory && o2.isDirectory) || (o1.isFile && o2.isFile)) {
                 result = o1.name.compareTo(o2.name, true)

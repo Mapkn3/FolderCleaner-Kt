@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.folders_fragment.view.*
+import kotlinx.android.synthetic.main.text_list_item.view.*
 import my.mapkn3.foldercleaner.R
 
 class FoldersFragment : Fragment() {
@@ -40,19 +40,18 @@ class FoldersFragment : Fragment() {
         foldersList = folderFragmentListener.loadData(FolderFragmentListener.FOLDERS_KEY)
 
         val fragment = inflater.inflate(R.layout.folders_fragment, container, false)
-        context?.let {
-            adapter = ArrayAdapter(it, R.layout.text_list_item, foldersList)
-            fragment.folders.adapter = adapter
 
-            fragment.folders.onItemLongClickListener =
-                AdapterView.OnItemLongClickListener { parent, view, position, id ->
-                    val selectedItem = (view as TextView).text.toString()
-                    val removedItem = foldersList.removeAt(position)
-                    adapter.notifyDataSetChanged()
-                    folderFragmentListener.notify("Folder '$removedItem' unselected")
-                    removedItem == selectedItem
-                }
-        }
+        adapter = ArrayAdapter(context, R.layout.text_list_item, foldersList)
+        fragment.folders.adapter = adapter
+
+        fragment.folders.onItemLongClickListener =
+            AdapterView.OnItemLongClickListener { parent, view, position, id ->
+                val selectedItem = view.textItem.text.toString()
+                val removedItem = foldersList.removeAt(position)
+                adapter.notifyDataSetChanged()
+                folderFragmentListener.notify("Folder '$removedItem' unselected")
+                removedItem == selectedItem
+            }
 
         fragment.selectFolderButton.setOnClickListener { folderFragmentListener.onChooseFolderClick() }
         fragment.clearFolderButton.setOnClickListener { folderFragmentListener.onClearFolderClick() }
@@ -63,6 +62,11 @@ class FoldersFragment : Fragment() {
     override fun onDestroyView() {
         folderFragmentListener.saveData(FolderFragmentListener.FOLDERS_KEY, foldersList)
         super.onDestroyView()
+    }
+
+    fun addFolder(folder: String) {
+        foldersList.add(folder)
+        adapter.notifyDataSetChanged()
     }
 
     interface FolderFragmentListener : SaveLoadData<String, ArrayList<String>>, NotifyUser {

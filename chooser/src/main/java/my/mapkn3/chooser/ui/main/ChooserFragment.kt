@@ -62,9 +62,8 @@ class ChooserFragment(
         chooserViewModel.fileSystemModelLiveData.observe(this, Observer { fileSystemModel ->
             pathTextView.text = fileSystemModel.getPathString()
 
-            val items = fileSystemModel.getItemsForCurrentItem()
             if (fileSystemModel.currentItemIsDirectory()) {
-                val data = items.map {
+                val data = fileSystemModel.getItemsForCurrentItem().map {
                     hashMapOf(
                         ITEM_KEY_ICON to if (it.isDirectory) FOLDER_ICON else FILE_ICON,
                         ITEM_KEY_NAME to it.name
@@ -72,7 +71,7 @@ class ChooserFragment(
                 }
                 val from = arrayOf(ITEM_KEY_ICON, ITEM_KEY_NAME)
                 val to = intArrayOf(R.id.itemIcon, R.id.itemText)
-                adapter = SimpleAdapter(this.context, data, R.layout.chooser_list_item, from, to)
+                adapter = SimpleAdapter(context, data, R.layout.chooser_list_item, from, to)
                 listAdapter = adapter
                 adapter.notifyDataSetChanged()
             }

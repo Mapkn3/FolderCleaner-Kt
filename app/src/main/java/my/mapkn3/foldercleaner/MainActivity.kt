@@ -29,7 +29,10 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
     private lateinit var foldersFragment: FoldersFragment
     private lateinit var ignoreFragment: IgnoreFragment
 
-    val PERMISSIONS = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+    val PERMISSIONS = arrayOf(
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    )
     val REQUEST_CODE = 1337
 
     private fun canAccessExternalSd(): Boolean {
@@ -37,7 +40,10 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
     }
 
     private fun hasPermission(permission: String): Boolean {
-        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, permission)
+        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
+            this,
+            permission
+        )
     }
 
     private fun requestForPermission(): Boolean {
@@ -62,7 +68,11 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
             ignoreFragment = IgnoreFragment.newInstance()
         }
 
-        viewPager2.adapter = ViewPagerFragmentStateAdapter(listOf(ignoreFragment, foldersFragment), supportFragmentManager, lifecycle)
+        viewPager2.adapter = ViewPagerFragmentStateAdapter(
+            listOf(ignoreFragment, foldersFragment),
+            supportFragmentManager,
+            lifecycle
+        )
         viewPager2.currentItem = 1
     }
 
@@ -78,8 +88,7 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
                         if (foldersFragment.foldersList.contains(path)) {
                             toastShort("Folder '$path' is already selected")
                         } else {
-                            foldersFragment.foldersList.add(path)
-                            foldersFragment.adapter.notifyDataSetChanged()
+                            foldersFragment.addFolder(path)
                         }
                     }
                 }
@@ -89,8 +98,7 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
                     if (ignoreFragment.ignoreList.contains(path)) {
                         toastShort("Ignore '$path' is already selected")
                     } else {
-                        ignoreFragment.ignoreList.add(path)
-                        ignoreFragment.adapter.notifyDataSetChanged()
+                        ignoreFragment.addIgnore(path)
                     }
                 }
         }
@@ -125,7 +133,7 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
 
     override fun onClearFolderClick() {
         if (foldersFragment.foldersList.isNotEmpty()) {
-            foldersFragment.foldersList.forEach { path ->
+            /*foldersFragment.foldersList.forEach { path ->
                 val item = File(path)
                 if (ignoreFragment.ignoreList.contains(item.name)) {
                     toastShort("Folder '$path' is in ignoreList list")
@@ -142,7 +150,8 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
                         toastLong("Folder '$path' is cleared")
                     }
                 }
-            }
+            }*/
+            foldersFragment.foldersList.map { File(it) }.forEach { deepRemoveItem(it) }
             toastLong("Complete!")
         } else {
             toastLong("Nothing is selected...")
