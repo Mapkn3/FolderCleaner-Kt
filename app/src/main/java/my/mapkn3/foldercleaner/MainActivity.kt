@@ -15,19 +15,21 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import my.mapkn3.chooser.ChooserActivity
 import my.mapkn3.chooser.model.FileSystemModel
-import my.mapkn3.foldercleaner.fragment.FoldersFragment
-import my.mapkn3.foldercleaner.fragment.IgnoreFragment
+import my.mapkn3.foldercleaner.fragment.ListWithControlFragment
 import java.io.File
 
-class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener,
-    IgnoreFragment.IgnoreFragmentListener {
+class MainActivity : AppCompatActivity(), ListWithControlFragment.ListWithControlFragmentListener {
+
     companion object {
         val SELECT_FOLDER = 1
         val SELECT_IGNORE = 2
+
+        val FOLDERS_KEY = "foldersList"
+        val IGNORE_KEY = "ignoreList"
     }
 
-    private lateinit var foldersFragment: FoldersFragment
-    private lateinit var ignoreFragment: IgnoreFragment
+    private lateinit var foldersFragment: ListWithControlFragment
+    private lateinit var ignoreFragment: ListWithControlFragment
 
     val PERMISSIONS = arrayOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -64,8 +66,14 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
         requestForPermission()
 
         if (savedInstanceState == null) {
-            foldersFragment = FoldersFragment.newInstance()
-            ignoreFragment = IgnoreFragment.newInstance()
+            foldersFragment = ListWithControlFragment.newInstance(
+                FOLDERS_KEY,
+                ListWithControlFragment.ControlPosition.UP
+            )
+            ignoreFragment = ListWithControlFragment.newInstance(
+                IGNORE_KEY,
+                ListWithControlFragment.ControlPosition.DOWN
+            )
         }
 
         viewPager2.adapter = ViewPagerFragmentStateAdapter(
@@ -85,20 +93,20 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
                     if (path == Environment.getExternalStorageDirectory().absolutePath) {
                         toastShort("You can't select root folder!")
                     } else {
-                        if (foldersFragment.foldersList.contains(path)) {
+                        if (foldersFragment.itemList.contains(path)) {
                             toastShort("Folder '$path' is already selected")
                         } else {
-                            foldersFragment.addFolder(path)
+                            foldersFragment.addItem(path)
                         }
                     }
                 }
             SELECT_IGNORE ->
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     val path = data.getStringExtra(ChooserActivity.RESULT_STRING)
-                    if (ignoreFragment.ignoreList.contains(path)) {
+                    if (ignoreFragment.itemList.contains(path)) {
                         toastShort("Ignore '$path' is already selected")
                     } else {
-                        ignoreFragment.addIgnore(path)
+                        ignoreFragment.addItem(path)
                     }
                 }
         }
@@ -115,24 +123,27 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
         return ArrayList(savedFolders)
     }
 
-    override fun onChooseIgnoreClick() {
-        val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
-            putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FILE)
-            putExtra(ChooserActivity.GET, FileSystemModel.TYPE.NAME)
+    override fun onActionButtonClick(key: String) {
+        when (key) {
+            FOLDERS_KEY -> {
+                val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
+                    putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FOLDER)
+                    putExtra(ChooserActivity.GET, FileSystemModel.TYPE.PATH)
+                }
+                startActivityForResult(chooserActivity, SELECT_FOLDER)
+            }
+            IGNORE_KEY -> {
+                val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
+                    putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FILE)
+                    putExtra(ChooserActivity.GET, FileSystemModel.TYPE.NAME)
+                }
+                startActivityForResult(chooserActivity, SELECT_IGNORE)
+            }
         }
-        startActivityForResult(chooserActivity, SELECT_IGNORE)
     }
 
-    override fun onChooseFolderClick() {
-        val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
-            putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FOLDER)
-            putExtra(ChooserActivity.GET, FileSystemModel.TYPE.PATH)
-        }
-        startActivityForResult(chooserActivity, SELECT_FOLDER)
-    }
-
-    override fun onClearFolderClick() {
-        if (foldersFragment.foldersList.isNotEmpty()) {
+    fun onClearFolderClick() {
+        if (foldersFragment.itemList.isNotEmpty()) {
             /*foldersFragment.foldersList.forEach { path ->
                 val item = File(path)
                 if (ignoreFragment.ignoreList.contains(item.name)) {
@@ -151,7 +162,7 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
                     }
                 }
             }*/
-            foldersFragment.foldersList.map { File(it) }.forEach { deepRemoveItem(it) }
+            foldersFragment.itemList.map { File(it) }.forEach { deepRemoveItem(it) }
             toastLong("Complete!")
         } else {
             toastLong("Nothing is selected...")
@@ -160,7 +171,7 @@ class MainActivity : AppCompatActivity(), FoldersFragment.FolderFragmentListener
 
     private fun deepRemoveItem(item: File): Boolean {
         var result = false
-        if (!ignoreFragment.ignoreList.contains(item.name)) {
+        if (!ignoreFragment.itemList.contains(item.name)) {
             if (item.isDirectory) {
                 item.listFiles().forEach { deepRemoveItem(it) }
             }

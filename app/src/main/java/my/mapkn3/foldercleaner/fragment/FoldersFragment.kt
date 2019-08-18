@@ -9,7 +9,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.folders_fragment.view.*
-import kotlinx.android.synthetic.main.text_list_item.view.*
 import my.mapkn3.foldercleaner.R
 
 class FoldersFragment : Fragment() {
@@ -41,16 +40,20 @@ class FoldersFragment : Fragment() {
 
         val fragment = inflater.inflate(R.layout.folders_fragment, container, false)
 
-        adapter = ArrayAdapter(context, R.layout.text_list_item, foldersList)
+        adapter = ArrayAdapter(
+            folderFragmentListener as Context,
+            R.layout.text_list_item,
+            R.id.textItem,
+            foldersList
+        )
         fragment.folders.adapter = adapter
 
         fragment.folders.onItemLongClickListener =
             AdapterView.OnItemLongClickListener { parent, view, position, id ->
-                val selectedItem = view.textItem.text.toString()
                 val removedItem = foldersList.removeAt(position)
                 adapter.notifyDataSetChanged()
                 folderFragmentListener.notify("Folder '$removedItem' unselected")
-                removedItem == selectedItem
+                true
             }
 
         fragment.selectFolderButton.setOnClickListener { folderFragmentListener.onChooseFolderClick() }
