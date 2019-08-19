@@ -21,21 +21,21 @@ import java.io.File
 class MainActivity : AppCompatActivity(), ListWithControlFragment.ListWithControlFragmentListener {
 
     companion object {
-        val SELECT_FOLDER = 1
-        val SELECT_IGNORE = 2
+        const val SELECT_FOLDER = 1
+        const val SELECT_IGNORE = 2
 
-        val FOLDERS_KEY = "foldersList"
-        val IGNORE_KEY = "ignoreList"
+        const val FOLDERS_KEY = "foldersList"
+        const val IGNORE_KEY = "ignoreList"
     }
 
     private lateinit var foldersFragment: ListWithControlFragment
     private lateinit var ignoreFragment: ListWithControlFragment
 
-    val PERMISSIONS = arrayOf(
+    private val permissions = arrayOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
         Manifest.permission.READ_EXTERNAL_STORAGE
     )
-    val REQUEST_CODE = 1337
+    private val requestCode = 1337
 
     private fun canAccessExternalSd(): Boolean {
         return hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), ListWithControlFragment.ListWithContro
         if (version >= 23) {
             if (!canAccessExternalSd()) {
                 isPermissionOn = false
-                ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
+                ActivityCompat.requestPermissions(this, permissions, requestCode)
             }
         }
         return isPermissionOn
@@ -97,7 +97,6 @@ class MainActivity : AppCompatActivity(), ListWithControlFragment.ListWithContro
                                     }
                                 }
                             }
-                            foldersFragment.itemList.map { File(it) }.forEach { deepRemoveItem(it) }
                             toastLong("Complete!")
                         } else {
                             toastLong("Nothing is selected...")
@@ -165,52 +164,6 @@ class MainActivity : AppCompatActivity(), ListWithControlFragment.ListWithContro
         return ArrayList(savedFolders)
     }
 
-    override fun onActionButtonClick(key: String) {
-        when (key) {
-            FOLDERS_KEY -> {
-                val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
-                    putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FOLDER)
-                    putExtra(ChooserActivity.GET, FileSystemModel.TYPE.PATH)
-                }
-                startActivityForResult(chooserActivity, SELECT_FOLDER)
-            }
-            IGNORE_KEY -> {
-                val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
-                    putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FILE)
-                    putExtra(ChooserActivity.GET, FileSystemModel.TYPE.NAME)
-                }
-                startActivityForResult(chooserActivity, SELECT_IGNORE)
-            }
-        }
-    }
-
-    fun onClearFolderClick() {
-        if (foldersFragment.itemList.isNotEmpty()) {
-            /*foldersFragment.foldersList.forEach { path ->
-                val item = File(path)
-                if (ignoreFragment.ignoreList.contains(item.name)) {
-                    toastShort("Folder '$path' is in ignoreList list")
-                } else {
-                    val files: Array<File>? = item.listFiles()
-                    if (files == null || files.isEmpty()) {
-                        toastShort("Folder '$path' is empty")
-                    } else {
-                        files.forEach {
-                            if (!deepRemoveItem(it)) {
-                                toastLong("File '${it.absolutePath}' is not deleted")
-                            }
-                        }
-                        toastLong("Folder '$path' is cleared")
-                    }
-                }
-            }*/
-            foldersFragment.itemList.map { File(it) }.forEach { deepRemoveItem(it) }
-            toastLong("Complete!")
-        } else {
-            toastLong("Nothing is selected...")
-        }
-    }
-
     private fun deepRemoveItem(item: File): Boolean {
         var result = false
         if (!ignoreFragment.itemList.contains(item.name)) {
@@ -222,11 +175,11 @@ class MainActivity : AppCompatActivity(), ListWithControlFragment.ListWithContro
         return result
     }
 
-    fun toastShort(message: String) {
+    private fun toastShort(message: String) {
         toast(message, Toast.LENGTH_SHORT)
     }
 
-    fun toastLong(message: String) {
+    private fun toastLong(message: String) {
         toast(message, Toast.LENGTH_LONG)
     }
 

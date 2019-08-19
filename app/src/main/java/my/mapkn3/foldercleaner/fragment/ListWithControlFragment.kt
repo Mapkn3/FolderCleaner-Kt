@@ -2,7 +2,6 @@ package my.mapkn3.foldercleaner.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.transition.Visibility
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +18,11 @@ class ListWithControlFragment(
     private val buttonActionArray: Array<Pair<String, () -> Unit>>
 ) : Fragment() {
     companion object {
-        fun newInstance(key: String,
-                        controlPosition: ControlPosition = ControlPosition.DOWN,
-                        buttonActionArray: Array<Pair<String, () -> Unit>> = arrayOf("Action" to {})) =
+        fun newInstance(
+            key: String,
+            controlPosition: ControlPosition = ControlPosition.DOWN,
+            buttonActionArray: Array<Pair<String, () -> Unit>> = arrayOf("Action" to {})
+        ) =
             ListWithControlFragment(key, controlPosition, buttonActionArray)
     }
 
@@ -146,7 +147,5 @@ class ListWithControlFragment(
         adapter.notifyDataSetChanged()
     }
 
-    interface ListWithControlFragmentListener : SaveLoadData<String, ArrayList<String>>, NotifyUser {
-        fun onActionButtonClick(key: String)
-    }
+    interface ListWithControlFragmentListener : SaveLoadData<String, ArrayList<String>>, NotifyUser
 }
