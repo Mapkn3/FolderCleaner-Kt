@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Folder Cleaner</string>
-    <string name="action_button_text">Select</string>
+    <string name="left_button_text">&lt;</string>
+    <string name="center_button_text">^</string>
+    <string name="right_button_text">&gt;</string>
     <string name="select_folder_button_text">Select folder</string>
     <string name="clear_folder_button_text">Clear folders</string>
     <string name="select_ignore_button_text">Select ignore</string>

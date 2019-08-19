@@ -24,12 +24,31 @@
         tools:ignore="MissingConstraints">
 
         <Button
-            android:id="@+id/actionButton"
+            android:id="@+id/leftButton"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/action_button_text" />
+            android:text="@string/left_button_text"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/centerButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/center_button_text"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/rightButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/right_button_text"
+            android:visibility="gone" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

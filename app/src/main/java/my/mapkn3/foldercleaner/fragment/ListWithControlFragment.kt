@@ -2,6 +2,7 @@ package my.mapkn3.foldercleaner.fragment
 
 import android.content.Context
 import android.os.Bundle
+import android.transition.Visibility
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +15,14 @@ import my.mapkn3.foldercleaner.R
 
 class ListWithControlFragment(
     private val key: String,
-    private val controlPosition: ControlPosition
+    private val controlPosition: ControlPosition,
+    private val buttonActionArray: Array<Pair<String, () -> Unit>>
 ) : Fragment() {
     companion object {
-        fun newInstance(key: String, controlPosition: ControlPosition = ControlPosition.DOWN) =
-            ListWithControlFragment(key, controlPosition)
+        fun newInstance(key: String,
+                        controlPosition: ControlPosition = ControlPosition.DOWN,
+                        buttonActionArray: Array<Pair<String, () -> Unit>> = arrayOf("Action" to {})) =
+            ListWithControlFragment(key, controlPosition, buttonActionArray)
     }
 
     enum class ControlPosition {
@@ -90,10 +94,43 @@ class ListWithControlFragment(
                 true
             }
 
-        fragment.controlPanel.actionButton.setOnClickListener {
-            listWithControlFragmentListener.onActionButtonClick(
-                key
-            )
+        when (buttonActionArray.size) {
+            1 -> {
+                fragment.controlPanel.centerButton.apply {
+                    visibility = View.VISIBLE
+                    text = buttonActionArray[0].first
+                    setOnClickListener { buttonActionArray[0].second() }
+                }
+            }
+            2 -> {
+                fragment.controlPanel.leftButton.apply {
+                    visibility = View.VISIBLE
+                    text = buttonActionArray[0].first
+                    setOnClickListener { buttonActionArray[0].second() }
+                }
+                fragment.controlPanel.rightButton.apply {
+                    visibility = View.VISIBLE
+                    text = buttonActionArray[1].first
+                    setOnClickListener { buttonActionArray[1].second() }
+                }
+            }
+            3 -> {
+                fragment.controlPanel.leftButton.apply {
+                    visibility = View.VISIBLE
+                    text = buttonActionArray[0].first
+                    setOnClickListener { buttonActionArray[0].second() }
+                }
+                fragment.controlPanel.centerButton.apply {
+                    visibility = View.VISIBLE
+                    text = buttonActionArray[1].first
+                    setOnClickListener { buttonActionArray[1].second() }
+                }
+                fragment.controlPanel.rightButton.apply {
+                    visibility = View.VISIBLE
+                    text = buttonActionArray[2].first
+                    setOnClickListener { buttonActionArray[2].second() }
+                }
+            }
         }
 
         return fragment

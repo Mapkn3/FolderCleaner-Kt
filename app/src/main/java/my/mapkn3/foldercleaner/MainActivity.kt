@@ -68,11 +68,53 @@ class MainActivity : AppCompatActivity(), ListWithControlFragment.ListWithContro
         if (savedInstanceState == null) {
             foldersFragment = ListWithControlFragment.newInstance(
                 FOLDERS_KEY,
-                ListWithControlFragment.ControlPosition.UP
+                ListWithControlFragment.ControlPosition.UP,
+                arrayOf(
+                    "Select folder" to {
+                        val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
+                            putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FOLDER)
+                            putExtra(ChooserActivity.GET, FileSystemModel.TYPE.PATH)
+                        }
+                        startActivityForResult(chooserActivity, SELECT_FOLDER)
+                    },
+                    "Clear folders" to {
+                        if (foldersFragment.itemList.isNotEmpty()) {
+                            foldersFragment.itemList.forEach { path ->
+                                val item = File(path)
+                                if (ignoreFragment.itemList.contains(item.name)) {
+                                    toastShort("Folder '$path' is in ignoreList list")
+                                } else {
+                                    val files: Array<File>? = item.listFiles()
+                                    if (files == null || files.isEmpty()) {
+                                        toastShort("Folder '$path' is empty")
+                                    } else {
+                                        files.forEach {
+                                            if (!deepRemoveItem(it)) {
+                                                toastLong("File '${it.absolutePath}' is not deleted")
+                                            }
+                                        }
+                                        toastLong("Folder '$path' is cleared")
+                                    }
+                                }
+                            }
+                            foldersFragment.itemList.map { File(it) }.forEach { deepRemoveItem(it) }
+                            toastLong("Complete!")
+                        } else {
+                            toastLong("Nothing is selected...")
+                        }
+                    }
+                )
             )
             ignoreFragment = ListWithControlFragment.newInstance(
                 IGNORE_KEY,
-                ListWithControlFragment.ControlPosition.DOWN
+                ListWithControlFragment.ControlPosition.DOWN,
+                arrayOf("Select ignore" to {
+                    val chooserActivity = Intent(this, ChooserActivity::class.java).apply {
+                        putExtra(ChooserActivity.CHOOSE, FileSystemModel.MODE.FILE)
+                        putExtra(ChooserActivity.GET, FileSystemModel.TYPE.NAME)
+                    }
+                    startActivityForResult(chooserActivity, SELECT_IGNORE)
+                })
             )
         }
 
