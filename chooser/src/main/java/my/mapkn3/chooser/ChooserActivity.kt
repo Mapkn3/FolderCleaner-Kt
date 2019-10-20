@@ -14,13 +14,13 @@ import my.mapkn3.chooser.ui.main.ChooserFragment
 
 class ChooserActivity : AppCompatActivity(), ChooserFragment.ChooserFragmentListener {
     companion object {
-        val CHOOSE = "choose"
-        val GET = "get"
-        val RESULT_STRING = "RESULT_STRING"
+        const val CHOOSE = "choose"
+        const val GET = "get"
+        const val RESULT_STRING = "RESULT_STRING"
     }
 
-    val PERMISSIONS = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
-    val REQUEST_CODE = 1337
+    private val PERMISSIONS = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+    private val REQUEST_CODE = 1337
 
     private lateinit var chooserFragment: ChooserFragment
 

@@ -31,18 +31,17 @@
             android:text="@string/select_current_folder_button_text" />
     </LinearLayout>
 
-    <ListView
-        android:id="@android:id/list"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chooser_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/chooser_list_item">
-    </ListView>
+        tools:listitem="@layout/chooser_list_item"/>
 
-    <TextView
+    <!--<TextView
         android:id="@android:id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="@string/items_not_found" />
+        android:text="@string/items_not_found" />-->
 
 </LinearLayout>
