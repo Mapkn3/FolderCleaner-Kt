@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
-import android.widget.SimpleAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -21,18 +19,12 @@ class ChooserFragment(
     private val type: FileSystemModel.TYPE
 ) : Fragment() {
     companion object {
-        private val FOLDER_ICON = R.drawable.ic_folder_black
-        private val FILE_ICON = R.drawable.ic_file_black
-        private const val ITEM_KEY_ICON = "icon"
-        private const val ITEM_KEY_NAME = "name"
-
         fun newInstance(mode: FileSystemModel.MODE, type: FileSystemModel.TYPE) =
             ChooserFragment(mode, type)
     }
 
     private lateinit var chooserFragmentListener: ChooserFragmentListener
     private lateinit var chooserViewModel: ChooserViewModel
-    private lateinit var adapter: SimpleAdapter
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -64,21 +56,9 @@ class ChooserFragment(
             pathTextView.text = fileSystemModel.getPathString()
 
             if (fileSystemModel.currentItemIsDirectory()) {
-                /*val data = fileSystemModel.getItemsForCurrentItem().map {
-                    hashMapOf(
-                        ITEM_KEY_ICON to if (it.isDirectory) FOLDER_ICON else FILE_ICON,
-                        ITEM_KEY_NAME to it.name
-                    )
-                }
-                val from = arrayOf(ITEM_KEY_ICON, ITEM_KEY_NAME)
-                val to = intArrayOf(R.id.itemIcon, R.id.itemText)
-                adapter = SimpleAdapter(context, data, R.layout.chooser_list_item, from, to)
-                adapter.notifyDataSetChanged()*/
                 val data = fileSystemModel.getItemsForCurrentItem()
-                chooser_list.apply {
-                    layoutManager = LinearLayoutManager(activity)
-                    adapter = ChooserListAdapter(data)
-                }
+                chooser_list.layoutManager = LinearLayoutManager(activity)
+                chooser_list.adapter = ChooserListAdapter(data, this)
             }
         })
 
@@ -101,17 +81,11 @@ class ChooserFragment(
 
     private fun setNameType() = chooserViewModel.setNameType()
 
-    private fun selectNext(item: String) = chooserViewModel.selectNextItem(item)
+    fun selectNext(item: String) = chooserViewModel.selectNextItem(item)
 
     fun selectPrev() = chooserViewModel.selectPrevItem()
 
     private fun getChoice() = chooserViewModel.getChoice()
-
-    /*override fun onListItemClick(l: ListView?, v: View?, position: Int, id: Long) {
-        super.onListItemClick(l, v, position, id)
-        val item: Map<*, *> = l?.getItemAtPosition(position) as Map<*, *>
-        selectNext(item[ITEM_KEY_NAME] as String)
-    }*/
 
     interface ChooserFragmentListener {
         fun onSelectClick(result: String)
